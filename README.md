@@ -4,8 +4,8 @@ Like a map of the land of proteins used to model close similarity and explore ne
 
 ## TODO
 
-- [ ] Convert a given `.pdb` file into a 3Di sequence
-- [ ] If that doesn't work, at least extract the same info and can learn relationship through model (check if otherwise)
+- [ ] read from pdb file 3D center location of each amino acid
+- [ ] extract features relevant to the 3D info
 - [ ] Train sequence model on the venome
 - [ ] extract embeddings and visualize in 2D
 - [ ] Train sequence model on the entire PDB
