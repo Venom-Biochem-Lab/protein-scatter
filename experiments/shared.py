@@ -1,8 +1,8 @@
-import matplotlib.pyplot as plt
 from biopandas.pdb import PandasPdb
+import plotly.express as px
 
 
-def carbon_alphas(pdb_file="../data/test.pdb"):
+def alpha_carbons(pdb_file="../data/test.pdb"):
     ppdb = PandasPdb().read_pdb(pdb_file)
     df = ppdb.df["ATOM"]
     df_ca = df[df["atom_name"] == "CA"].sort_values(by="residue_number")
@@ -10,8 +10,5 @@ def carbon_alphas(pdb_file="../data/test.pdb"):
 
 
 def plot_3d(df_ca):
-    ax = plt.figure().add_subplot(projection="3d")
-    x = df_ca["x_coord"].tolist()
-    y = df_ca["y_coord"].tolist()
-    z = df_ca["z_coord"].tolist()
-    return ax.plot(x, y, z)
+    fig = px.line_3d(df_ca, x="x_coord", y="y_coord", z="z_coord")
+    return fig
