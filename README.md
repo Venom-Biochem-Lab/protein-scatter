@@ -4,7 +4,7 @@ Like a map of the land of proteins used to model close similarity and explore ne
 
 ## TODO
 
-- [ ] read from pdb file 3D center location of each amino acid
+- [x] read from pdb file 3D center location of each amino acid (as $\alpha$ carbon for now)
 - [ ] extract features relevant to the 3D info
 - [ ] Train sequence model on the venome
 - [ ] extract embeddings and visualize in 2D
