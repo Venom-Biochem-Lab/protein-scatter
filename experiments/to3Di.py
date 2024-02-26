@@ -70,11 +70,11 @@ def to3Di(input_dir, db="3DiAA", verbose=False):
     return parsed
 
 
-def command_line(dir, name="3DiAA", verbose=False):
+def cli(dir, name="3DiAA", verbose=False):
     result = to3Di(input_dir=dir, db=name, verbose=verbose)
     print(result.names)
     print(result.repr_3Di)
 
 
 if __name__ == "__main__":
-    fire.Fire(command_line)
+    fire.Fire(cli)
