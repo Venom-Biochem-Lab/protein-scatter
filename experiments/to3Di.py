@@ -1,11 +1,14 @@
 import subprocess
 from dataclasses import dataclass
-import shutil
 import os
 
 
+def shell(cmd: str):
+    return subprocess.check_output(cmd, shell=True).decode()
+
+
 def foldseek(cmd: str, verbose=False):
-    logs = subprocess.check_output(f"foldseek {cmd}", shell=True).decode()
+    logs = shell(f"foldseek {cmd}")
     if verbose:
         print(logs)
 
@@ -43,23 +46,21 @@ def parse_foldseekdb_for_3Di(db):
     return Parsed3DiAA(names=names, repr_amino_acids=repr_AA, repr_3Di=repr_3Di)
 
 
-def to3Di(dir="~/Desktop/proteins", db="./.temp/3DiAA", verbose=False):
-    # create db
+def create_db(input_dir, db_name, verbose=False):
     os.makedirs(".temp", exist_ok=True)
-    try:
-        foldseek(f"createdb {dir} {db}", verbose=verbose)
-    except Exception as e:
-        print(e)
-        return
+    foldseek(f"createdb {input_dir} {db_name}", verbose=verbose)
 
-    # parse db
+
+def remove_db(db):
+    shell(f"rm -f {db}*")
+
+
+def to3Di(dir="~/Desktop/proteins", db="./.temp/3DiAA", verbose=False):
+    create_db(input_dir=dir, db_name=db, verbose=verbose)
     parsed = parse_foldseekdb_for_3Di(db)
-
-    # remove db
-    shutil.rmtree(".temp")
-
+    remove_db(db)
     return parsed
 
 
 if __name__ == "__main__":
-    print(to3Di())
+    print(to3Di(verbose=True))
