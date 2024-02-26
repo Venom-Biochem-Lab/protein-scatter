@@ -21,13 +21,7 @@ def parse_seq(line):
 def parse_names(db):
     # read the order of files
     with open(db + ".lookup", "r") as infile:
-        idxs = []
-        names = []
-        for line in infile.readlines():
-            [index, name, _] = line.split("\t")
-            idxs.append(int(index))
-            names.append(name)
-        return idxs, names
+        return [d[0] for d in [line.split("\t") for line in infile.readlines()]]
 
 
 def parse_seqs(db):
@@ -44,7 +38,7 @@ class Parsed3DiAA:
 
 
 def parse_foldseekdb_for_3Di(db):
-    _, names = parse_names(db)
+    names = parse_names(db)
     repr_3Di = parse_seqs(db + "_ss")
     repr_AA = parse_seqs(db)
     assert (
