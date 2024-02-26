@@ -1,6 +1,7 @@
 import subprocess
 from dataclasses import dataclass
 import os
+import fire
 
 TEMP_DIR = ".temp"
 FOLDSEEK_EXECUTABLE = "foldseek"
@@ -60,14 +61,20 @@ def create_temp_dir(db):
     return db
 
 
-def to3Di(dir="~/Desktop/proteins", db="3DiAA", verbose=False):
+def to3Di(input_dir, db="3DiAA", verbose=False):
     db = create_temp_dir(db)  # changes db to within the temp directory
-    create_db(input_dir=dir, db=db, verbose=verbose)
+    create_db(input_dir=input_dir, db=db, verbose=verbose)
     parsed = db_to_3Di(db)
     remove_db(db)
 
     return parsed
 
 
+def command_line(dir, name="3DiAA", verbose=False):
+    result = to3Di(input_dir=dir, db=name, verbose=verbose)
+    print(result.names)
+    print(result.repr_3Di)
+
+
 if __name__ == "__main__":
-    print(to3Di(verbose=True))
+    fire.Fire(command_line)
