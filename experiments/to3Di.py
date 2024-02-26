@@ -4,12 +4,8 @@ import shutil
 import os
 
 
-def c(cmd: str | list[str]) -> str:
-    return subprocess.check_output(cmd, shell=True).decode()
-
-
 def foldseek(cmd: str, verbose=False):
-    logs = c(f"foldseek {cmd}")
+    logs = subprocess.check_output(f"foldseek {cmd}", shell=True).decode()
     if verbose:
         print(logs)
 
