@@ -20,7 +20,7 @@ def parse_seq(line):
 def parse_names(db):
     # read the order of files
     with open(db + ".lookup", "r") as infile:
-        return [d[0] for d in [line.split("\t") for line in infile.readlines()]]
+        return [d[1] for d in [line.split("\t") for line in infile.readlines()]]
 
 
 def parse_seqs(db):
@@ -40,6 +40,7 @@ def parse_foldseekdb_for_3Di(db):
     names = parse_names(db)
     repr_3Di = parse_seqs(db + "_ss")
     repr_AA = parse_seqs(db)
+    print(names)
     assert (
         len(repr_3Di) == len(repr_AA) == len(names)
     ), "The number of sequences should be the same."
