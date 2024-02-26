@@ -38,7 +38,7 @@ class Parsed3DiAA:
     repr_3Di: list[str]
 
 
-def parse_foldseekdb_for_3Di(db):
+def db_to_3Di(db):
     names = parse_names(db)
     repr_3Di = parse_seqs(db + "_ss")
     # repr_AA = parse_seqs(db)
@@ -63,7 +63,7 @@ def create_temp_dir(db):
 def to3Di(dir="~/Desktop/proteins", db="3DiAA", verbose=False):
     db = create_temp_dir(db)  # changes db to within the temp directory
     create_db(input_dir=dir, db=db, verbose=verbose)
-    parsed = parse_foldseekdb_for_3Di(db)
+    parsed = db_to_3Di(db)
     remove_db(db)
 
     return parsed
