@@ -1,6 +1,8 @@
 # protein-map
 
-Like a map of the land of proteins used to model close similarity and explore neighbors
+A map of proteins for exploration and discovery.
+
+This code uses Foldseek's 3Di representation instead of amino acids to train a sequence model. The embeddings from the sequence model are then fed into UMAP.
 
 ## TODO
 
