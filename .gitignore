@@ -4,3 +4,4 @@ foldseek/
 .temp/
 master_venom_galaxy*
 data/
+*.csv

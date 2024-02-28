@@ -19,3 +19,5 @@ This code uses [Foldseek](https://github.com/steineggerlab/foldseek)'s 3Di repre
 
 - Foldseek: [van Kempen M, Kim S, Tumescheit C, Mirdita M, Lee J, Gilchrist C, Söding J, and Steinegger M. Fast and accurate protein structure search with Foldseek. Nature Biotechnology, doi:10.1038/s41587-023-01773-0 (2023)](https://www.nature.com/articles/s41587-023-01773-0)
 
+- nanoGPT: [Adrej Karpathy, nanoGPT](https://github.com/karpathy/nanoGPT)
+
