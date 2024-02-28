@@ -4,8 +4,6 @@ import torch
 
 # from 5.ipynb
 
-START_TOKEN = "["
-END_TOKEN = "]"
 ALPHABET_3Di = [
     "A",
     "C",
@@ -31,8 +29,6 @@ ALPHABET_3Di = [
 assert len(ALPHABET_3Di) == 20
 TOKENS = [
     *ALPHABET_3Di,
-    START_TOKEN,
-    END_TOKEN,
 ]
 
 to_index = {letter: i for i, letter in enumerate(TOKENS)}
@@ -49,10 +45,7 @@ def decode(encoded: list):
 
 def pdb_to_3Di_csv(dir, out_file="default.csv"):
     parsed = to3Di(dir)
-    with_start_and_stop_tokens = [
-        f"{START_TOKEN}{_repr}{END_TOKEN}" for _repr in parsed.repr_3Di
-    ]
-    pd.DataFrame({"name": parsed.names, "3Di": with_start_and_stop_tokens}).to_csv(
+    pd.DataFrame({"name": parsed.names, "3Di": parsed.repr_3Di}).to_csv(
         out_file, index=False
     )
 

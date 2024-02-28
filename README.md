@@ -25,3 +25,6 @@ The key idea is that we take 3D sequence information about the tertiary structur
 
 - nanoGPT: [Andrej Karpathy, nanoGPT](https://github.com/karpathy/nanoGPT)
 
+- Let's build GPT: [Andrej Karpathy, Let's build GPT: from scratch, in code, spelled out](https://www.youtube.com/watch?v=kCc8FmEb1nY&list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ&index=8)
+
+- nanogpt-lecture: [Andrej Karpathy, Github ng-video-lecture]( https://github.com/karpathy/ng-video-lecture?tab=readme-ov-file )
