@@ -4,6 +4,8 @@ A map of proteins for exploration and discovery.
 
 This code uses [Foldseek](https://github.com/steineggerlab/foldseek)'s 3Di representation instead of amino acids to train a sequence model. The embeddings from the sequence model are then fed into UMAP for a global visualization.
 
+The key idea is that we take 3D sequence information about the tertiary structure of the protein and let the interal 3D representations communicate with each other and decide what is important. After training on a large dataset, we should have very effective embeddings.
+
 ## TODO
 
 - [x] read from pdb file 3D center location of each amino acid (as $\alpha$ carbon for now)
