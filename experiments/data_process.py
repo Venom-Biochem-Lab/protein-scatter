@@ -66,13 +66,13 @@ def get_train_val_split(repr_3Di, ratio=0.9):
     return train, val
 
 
-def get_batch(split, batch_size=8, block_size=64):
+def get_batch(split, batch_size=8, block_size=64, device="cpu"):
     xs = []
     ys = []
     for b in range(batch_size):
         x, y = get_block_xy(split, block_size)
         xs.append(x)
         ys.append(y)
-    xs = torch.tensor(xs, dtype=torch.long)
-    ys = torch.tensor(ys, dtype=torch.long)
+    xs = torch.tensor(xs, dtype=torch.long, device=device)
+    ys = torch.tensor(ys, dtype=torch.long, device=device)
     return xs, ys
