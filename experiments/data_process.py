@@ -5,8 +5,7 @@ from to3Di import to3Di
 
 START_TOKEN = "["
 END_TOKEN = "]"
-TOKENS = [
-    # 3Di alphabet (20 codes)
+ALPHABET_3Di = [
     "A",
     "C",
     "D",
@@ -15,20 +14,25 @@ TOKENS = [
     "G",
     "H",
     "I",
+    "K",
     "L",
+    "M",
     "N",
     "P",
     "Q",
     "R",
     "S",
+    "T",
     "V",
     "W",
     "Y",
-    # special characters
+]
+assert len(ALPHABET_3Di) == 20
+TOKENS = [
+    *ALPHABET_3Di,
     START_TOKEN,
     END_TOKEN,
 ]
-
 
 to_index = {letter: i for i, letter in enumerate(TOKENS)}
 to_3Di = {i: letter for i, letter in enumerate(TOKENS)}
