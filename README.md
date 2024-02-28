@@ -11,8 +11,10 @@ The key idea is that we take 3D sequence information about the tertiary structur
 - [x] read from pdb file 3D center location of each amino acid (as $\alpha$ carbon for now)
 - [x] extract features relevant to the 3D info
 - [ ] Train sequence model on the new alphabet
+	- [x] Create a small dataset (3 train, 1 val of relatively small proteins)
+	- [ ] Create a transformer that can overfit that dataset (simply)
 - [ ] extract embeddings and visualize in 2D
-- [ ] Train sequence model on the entire PDB
+- [ ] Train sequence model on subset of PDB (talk to Juan about good way to clean)
 - [ ] extract embeddings and visualize in 2D
 - [ ] create interface around it
 
