@@ -3,6 +3,8 @@ from to3Di import to3Di
 
 # from 5.ipynb
 
+START_TOKEN = "["
+END_TOKEN = "]"
 TOKENS = [
     # 3Di alphabet (20 codes)
     "A",
@@ -23,8 +25,8 @@ TOKENS = [
     "W",
     "Y",
     # special characters
-    "[",  # start
-    "]",  # end
+    START_TOKEN,
+    END_TOKEN,
 ]
 
 
@@ -42,6 +44,9 @@ def decode(encoded: list):
 
 def pdb_to_3Di_csv(dir, out_file="default.csv"):
     parsed = to3Di(dir)
-    pd.DataFrame({"name": parsed.names, "3Di": parsed.repr_3Di}).to_csv(
+    with_start_and_stop_tokens = [
+        f"{START_TOKEN}{_repr}{END_TOKEN}" for _repr in parsed.repr_3Di
+    ]
+    pd.DataFrame({"name": parsed.names, "3Di": with_start_and_stop_tokens}).to_csv(
         out_file, index=False
     )
