@@ -68,8 +68,8 @@ def get_block_xy(repr_3Di, block_size):
 
 def get_train_val_split(repr_3Di, ratio=0.9):
     split = int(ratio * len(repr_3Di))
-    train = repr_3Di[:split]
-    val = repr_3Di[split:]
+    train = [encode(i) for i in repr_3Di[:split]]
+    val = [encode(i) for i in repr_3Di[split:]]
     return train, val
 
 
@@ -78,8 +78,8 @@ def get_batch(split, batch_size=8, block_size=64):
     ys = []
     for b in range(batch_size):
         x, y = get_block_xy(split, block_size)
-        xs.append(encode(x))
-        ys.append(encode(y))
+        xs.append(x)
+        ys.append(y)
     xs = torch.tensor(xs, dtype=torch.long)
     ys = torch.tensor(ys, dtype=torch.long)
     return xs, ys
