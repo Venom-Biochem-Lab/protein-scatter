@@ -20,7 +20,7 @@ n_head = 8
 n_layer = 4
 bias = False
 dropout = 0.0
-always_save_checkpoint = True
+always_save_checkpoint = False
 model_args = {
     "vocab_size": vocab_size,
     "n_embd": n_embd,
