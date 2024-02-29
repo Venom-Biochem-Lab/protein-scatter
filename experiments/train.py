@@ -31,7 +31,7 @@ model_args = {
     "block_size": block_size,
 }
 optim_args = {"lr": learning_rate}
-load_from_checkpoint = True
+load_from_checkpoint = False
 wandb_project_name = "protein-map"
 wandb_run_name = "gpt" + str(time.time())
 
