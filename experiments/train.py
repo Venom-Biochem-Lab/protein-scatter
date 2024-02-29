@@ -10,17 +10,19 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 batch_size = 16
 block_size = 64
 vocab_size = 20
-max_iters = 2000
+max_iters = 20_000
 eval_interval = 100
 eval_iters = 200
-learning_rate = 1e-3
+learning_rate = 5e-4
 vocab_size = 20
-n_embd = 256
-n_head = 8
+n_embd = 128
+n_head = 4
 n_layer = 4
 bias = False
 dropout = 0.0
-always_save_checkpoint = False
+beta1 = 0.9
+beta2 = 0.95
+always_save_checkpoint = True
 model_args = {
     "vocab_size": vocab_size,
     "n_embd": n_embd,
@@ -30,9 +32,12 @@ model_args = {
     "dropout": dropout,
     "block_size": block_size,
 }
-optim_args = {"lr": learning_rate}
+optim_args = {
+    "lr": learning_rate,
+    "betas": (beta1, beta2),
+}
 load_from_checkpoint = False
-wandb_project_name = "protein-map"
+wandb_project_name = "protein-map-venome2"
 wandb_run_name = "gpt" + str(time.time())
 
 
