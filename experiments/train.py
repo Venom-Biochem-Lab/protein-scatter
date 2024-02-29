@@ -3,6 +3,8 @@ import data_process as dp
 from model import GPT
 import pandas as pd
 import os
+import wandb
+import time
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 batch_size = 16
@@ -27,9 +29,12 @@ model_args = {
     "n_layer": n_layer,
     "dropout": dropout,
     "block_size": block_size,
+    "batch_size": batch_size,
 }
 optim_args = {"lr": learning_rate}
 load_from_checkpoint = True
+wandb_project_name = "protein-map"
+wandb_run_name = "gpt" + str(time.time())
 
 
 @torch.no_grad()
@@ -66,6 +71,7 @@ def save_checkpoint(
         "iter_num": iter_num,
         "val_loss": val_loss,
         "optim_args": optim_args,
+        "batch_size": batch_size,
     }
     print(f"saving checkpoint to {out_dir}")
     torch.save(checkpoint, os.path.join(out_dir, "checkpoint.pt"))
@@ -89,7 +95,8 @@ def load_checkpoint(dir: str):
     return model, optim
 
 
-def train(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
+def train_gpt(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
+    best_val_loss = float(13420666)
     for iter in range(max_iters):
         # every once in a while evaluate the loss on train and val sets
         if iter % eval_interval == 0 or iter == max_iters - 1:
@@ -97,6 +104,16 @@ def train(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
             print(
                 f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}"
             )
+            wandb.log(
+                {
+                    "iter": iter,
+                    "val_loss": losses["val"],
+                    "train_loss": losses["train"],
+                }
+            )
+            if iter > 0 and losses["val"] < best_val_loss or always_save_checkpoint:
+                best_val_loss = losses["val"]
+                save_checkpoint("./", model, optimizer, iter, best_val_loss)
 
         # sample a batch of data
         xb, yb = dp.get_batch(
@@ -111,16 +128,16 @@ def train(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
 
 
 if __name__ == "__main__":
-    df = pd.read_csv("./data.csv")
-    train, val = dp.get_train_val_split(df["3Di"].tolist())
+    wandb.login()
+    with wandb.init(project=wandb_project_name, name=wandb_run_name, config=model_args):
+        df = pd.read_csv("./data.csv")
+        train, val = dp.get_train_val_split(df["3Di"].tolist())
 
-    if load_from_checkpoint:
-        model, optimizer = load_checkpoint("./")
-    else:
-        model = GPT(**model_args)
-        model.to(device)
-        optimizer = torch.optim.AdamW(model.parameters(), **optim_args)
+        if load_from_checkpoint:
+            model, optimizer = load_checkpoint("./")
+        else:
+            model = GPT(**model_args)
+            model.to(device)
+            optimizer = torch.optim.AdamW(model.parameters(), **optim_args)
 
-    print(sum(p.numel() for p in model.parameters()) / 1e6, "M params")
-    context = torch.zeros((1, 1), dtype=torch.long, device=device)
-    print(dp.decode(model.generate(context, max_new_tokens=10)[0].tolist()))
+        train_gpt(model, optimizer)
