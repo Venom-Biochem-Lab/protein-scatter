@@ -12,9 +12,9 @@ The key idea is that we take 3D sequence information about the tertiary structur
 - [x] extract features relevant to the 3D info
 - [ ] Train sequence model on the new alphabet
 	- [x] Create a small dataset (3 train, 1 val of relatively small proteins)
-	- [ ] Create a transformer that can overfit that dataset (simply)
-- [ ] extract embeddings and visualize in 2D
-- [ ] Train sequence model on subset of PDB (talk to Juan about good way to clean)
+	- [x] Create a transformer that can overfit that dataset (simply)
+- [x] extract embeddings and visualize in 2D
+- [ ] Train sequence model on subset of PDB
 - [ ] extract embeddings and visualize in 2D
 - [ ] create interface around it
 
