@@ -1,7 +1,6 @@
 import subprocess
 from dataclasses import dataclass
 import os
-import fire
 
 TEMP_DIR = ".temp"
 FOLDSEEK_EXECUTABLE = "foldseek"
@@ -72,20 +71,3 @@ def to3Di(input_dir, db="3DiAA", verbose=False, include_amino_acids=False):
     remove_db(db)
 
     return parsed
-
-
-def cli(dir, name="3DiAA", verbose=False, amino_acids=False):
-    result = to3Di(
-        input_dir=dir, db=name, verbose=verbose, include_amino_acids=amino_acids
-    )
-    print("names")
-    print(result.names)
-    print("3Di")
-    print(result.repr_3Di)
-    if amino_acids:
-        print("AA")
-        print(result.repr_AA)
-
-
-if __name__ == "__main__":
-    fire.Fire(cli)

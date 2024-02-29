@@ -15,8 +15,8 @@ eval_interval = 100
 eval_iters = 200
 learning_rate = 1e-3
 vocab_size = 20
-n_embd = 64
-n_head = 4
+n_embd = 256
+n_head = 8
 n_layer = 4
 bias = False
 dropout = 0.0
@@ -29,7 +29,6 @@ model_args = {
     "n_layer": n_layer,
     "dropout": dropout,
     "block_size": block_size,
-    "batch_size": batch_size,
 }
 optim_args = {"lr": learning_rate}
 load_from_checkpoint = True
@@ -71,7 +70,6 @@ def save_checkpoint(
         "iter_num": iter_num,
         "val_loss": val_loss,
         "optim_args": optim_args,
-        "batch_size": batch_size,
     }
     print(f"saving checkpoint to {out_dir}")
     torch.save(checkpoint, os.path.join(out_dir, "checkpoint.pt"))
@@ -129,8 +127,12 @@ def train_gpt(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
 
 if __name__ == "__main__":
     wandb.login()
-    with wandb.init(project=wandb_project_name, name=wandb_run_name, config=model_args):
-        df = pd.read_csv("./data.csv")
+    with wandb.init(
+        project=wandb_project_name,
+        name=wandb_run_name,
+        config={"batch_size": batch_size, **model_args},
+    ):
+        df = pd.read_csv("./data-venome.csv")
         train, val = dp.get_train_val_split(df["3Di"].tolist())
 
         if load_from_checkpoint:
