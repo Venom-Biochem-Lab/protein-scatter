@@ -14,7 +14,8 @@ What makes this system different? Here I explicitly model each protein as the in
 	- [x] Create a small dataset (3 train, 1 val of relatively small proteins)
 	- [x] Create a transformer that can overfit that dataset (simply)
 - [x] extract embeddings and visualize in 2D
-- [ ] Train sequence model on subset of PDB
+- [x] filter all of PDB dataset down to ~100k proteins of length between 64 and 2048
+- [ ] Train sequence model on subset of PDB for a ton of iterations (might take many days)
 - [ ] extract embeddings and visualize in 2D
 - [ ] create interface around it
 
@@ -23,8 +24,6 @@ What makes this system different? Here I explicitly model each protein as the in
 
 - Foldseek: [van Kempen M, Kim S, Tumescheit C, Mirdita M, Lee J, Gilchrist C, Söding J, and Steinegger M. Fast and accurate protein structure search with Foldseek. Nature Biotechnology, doi:10.1038/s41587-023-01773-0 (2023)](https://www.nature.com/articles/s41587-023-01773-0)
 
-- nanoGPT: [Andrej Karpathy, nanoGPT](https://github.com/karpathy/nanoGPT)
-
-- Let's build GPT: [Andrej Karpathy, Let's build GPT: from scratch, in code, spelled out](https://www.youtube.com/watch?v=kCc8FmEb1nY&list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ&index=8)
-
-- nanogpt-lecture: [Andrej Karpathy, Github ng-video-lecture]( https://github.com/karpathy/ng-video-lecture?tab=readme-ov-file )
+- [Andrej Karpathy](https://github.com/karpathy)
+	- https://github.com/karpathy/nanoGPT
+ 	- https://github.com/karpathy/ng-video-lecture
