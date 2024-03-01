@@ -7,23 +7,24 @@ import wandb
 import time
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-batch_size = 16
+batch_size = 12
 block_size = 128
 vocab_size = 20
 max_iters = 60_000
 eval_interval = 100
 eval_iters = 200
-learning_rate = 5e-3
+learning_rate = 1e-4
 vocab_size = 20
 n_embd = 128
 n_head = 8
-n_layer = 8
-bias = False
-dropout = 0.0
+n_layer = 4
+bias = True
+dropout = 0.1
 beta1 = 0.9
-beta2 = 0.95
+beta2 = 0.999
 always_save_checkpoint = True
 never_save_checkpoint = False
+checkpoint_file = "checkpoint-2.pt"
 model_args = {
     "vocab_size": vocab_size,
     "n_embd": n_embd,
@@ -37,7 +38,8 @@ optim_args = {
     "lr": learning_rate,
     "betas": (beta1, beta2),
 }
-load_from_checkpoint = False
+load_from_checkpoint = True
+use_wandb = True
 wandb_project_name = "protein-map-pdb-run"
 wandb_run_name = "gpt" + str(time.time())
 wandb_sweep = False
@@ -82,15 +84,15 @@ def save_checkpoint(
         "val_loss": val_loss,
         "optim_args": optim_args,
     }
-    print(f"saving checkpoint to {out_dir}")
-    torch.save(checkpoint, os.path.join(out_dir, "checkpoint.pt"))
+    print(f"saving checkpoint to {out_dir}{checkpoint_file}")
+    torch.save(checkpoint, os.path.join(out_dir, checkpoint_file))
 
 
 def load_checkpoint(dir: str):
     global model_args
     global optim_args
 
-    checkpoint = torch.load(os.path.join(dir, "checkpoint.pt"), map_location=device)
+    checkpoint = torch.load(os.path.join(dir, checkpoint_file), map_location=device)
     model_args = checkpoint["model_args"]
     optim_args = checkpoint["optim_args"]
 
@@ -116,13 +118,14 @@ def train_gpt(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
             print(
                 f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}"
             )
-            wandb.log(
-                {
-                    "iter": iter,
-                    "val_loss": losses["val"],
-                    "train_loss": losses["train"],
-                }
-            )
+            if use_wandb:
+                wandb.log(
+                    {
+                        "iter": iter,
+                        "val_loss": losses["val"],
+                        "train_loss": losses["train"],
+                    }
+                )
             if not never_save_checkpoint and (
                 iter > 0 and losses["val"] < best_val_loss or always_save_checkpoint
             ):
@@ -170,7 +173,8 @@ def sweep_train_api(config=None):
 if __name__ == "__main__":
     print("Loading dataset")
     df = pd.read_parquet("./datasets/pdb-no-model-no-asm-129-2048.parquet")
-    train, val = dp.get_train_val_split(df["3Di"].tolist())
+    train, val = dp.get_train_val_split(df["3Di"].tolist(), ratio=0.5)
+    print("split", len(train), len(val))
 
     if not wandb_sweep:
         if load_from_checkpoint:
@@ -184,12 +188,15 @@ if __name__ == "__main__":
             optimizer = torch.optim.AdamW(model.parameters(), **optim_args)
             num_params(model)
 
-        wandb.login()
-        with wandb.init(
-            project=wandb_project_name,
-            name=wandb_run_name,
-            config={"batch_size": batch_size, **model_args},
-        ):
+        if use_wandb:
+            wandb.login()
+            with wandb.init(
+                project=wandb_project_name,
+                name=wandb_run_name,
+                config={"batch_size": batch_size, **model_args},
+            ):
+                train_gpt(model, optimizer)
+        else:
             train_gpt(model, optimizer)
     else:
         # https://wandb.ai/donnyb/protein-map-pdb-search/sweeps/vs4dyhle?workspace=user-donnyb
