@@ -7,15 +7,15 @@ import wandb
 import time
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-batch_size = 32
+batch_size = 16
 block_size = 128
 vocab_size = 20
-max_iters = 1_000
+max_iters = 60_000
 eval_interval = 100
 eval_iters = 200
-learning_rate = 5e-4
+learning_rate = 5e-3
 vocab_size = 20
-n_embd = 256
+n_embd = 128
 n_head = 8
 n_layer = 8
 bias = False
@@ -38,13 +38,13 @@ optim_args = {
     "betas": (beta1, beta2),
 }
 load_from_checkpoint = False
-wandb_project_name = "protein-map-pdb-search"
+wandb_project_name = "protein-map-pdb-run"
 wandb_run_name = "gpt" + str(time.time())
+wandb_sweep = False
 
 # should be populated in the main func
 train = None
 val = None
-wandb_sweep = True
 
 
 @torch.no_grad()
@@ -123,7 +123,9 @@ def train_gpt(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
                     "train_loss": losses["train"],
                 }
             )
-            if not never_save_checkpoint and (iter > 0 and losses["val"] < best_val_loss or always_save_checkpoint):
+            if not never_save_checkpoint and (
+                iter > 0 and losses["val"] < best_val_loss or always_save_checkpoint
+            ):
                 best_val_loss = losses["val"]
                 save_checkpoint("./", model, optimizer, iter, best_val_loss)
 
@@ -148,7 +150,7 @@ def sweep_train_api(config=None):
     global optim_args
     global never_save_checkpoint
     global block_size
-    
+
     with wandb.init(project=wandb_project_name, name=wandb_run_name, config=config):
         config = wandb.config
         block_size = config.block_size
@@ -166,20 +168,20 @@ def sweep_train_api(config=None):
 
 
 if __name__ == "__main__":
+    print("Loading dataset")
     df = pd.read_parquet("./datasets/pdb-no-model-no-asm-129-2048.parquet")
     train, val = dp.get_train_val_split(df["3Di"].tolist())
-    print("Loaded dataset")
 
     if not wandb_sweep:
         if load_from_checkpoint:
+            print("Loading model from checkpoint")
             model, optimizer = load_checkpoint("./")
-            print("Loaded model from checkpoint")
             num_params(model)
         else:
+            print("Creating model")
             model = GPT(**model_args)
             model.to(device)
             optimizer = torch.optim.AdamW(model.parameters(), **optim_args)
-            print("Created model")
             num_params(model)
 
         wandb.login()
@@ -190,6 +192,7 @@ if __name__ == "__main__":
         ):
             train_gpt(model, optimizer)
     else:
+        # https://wandb.ai/donnyb/protein-map-pdb-search/sweeps/vs4dyhle?workspace=user-donnyb
         sweep_config = {
             "method": "random",
             "metric": {"name": "val_loss", "goal": "minimize"},
@@ -198,7 +201,7 @@ if __name__ == "__main__":
                 "n_embd": {"values": [128, 256, 512, 1024]},
                 "block_size": {"values": [64, 128]},
                 "n_head": {"values": [4, 8, 16]},
-                "n_layer": {"values": [4, 8, 16]}
+                "n_layer": {"values": [4, 8, 16]},
             },
         }
         sweep_id = wandb.sweep(sweep_config, project=wandb_project_name)
