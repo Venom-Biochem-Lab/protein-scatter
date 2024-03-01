@@ -23,6 +23,9 @@ dropout = 0.0
 beta1 = 0.9
 beta2 = 0.95
 always_save_checkpoint = True
+never_save_checkpoint = (
+    False  # has priority and also disables saving on lowest loss checkpoint saving
+)
 model_args = {
     "vocab_size": vocab_size,
     "n_embd": n_embd,
@@ -122,7 +125,9 @@ def train_gpt(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
                     "train_loss": losses["train"],
                 }
             )
-            if iter > 0 and losses["val"] < best_val_loss or always_save_checkpoint:
+            if not never_save_checkpoint and (
+                iter > 0 and losses["val"] < best_val_loss or always_save_checkpoint
+            ):
                 best_val_loss = losses["val"]
                 save_checkpoint("./", model, optimizer, iter, best_val_loss)
 
@@ -145,20 +150,21 @@ def num_params(m):
 def sweep_train_api(config=None):
     global model_args
     global optim_args
-    global always_save_checkpoint
-
-    model_args["n_embd"] = config.n_embd
-    model_args["n_head"] = config.n_head
-    model_args["n_layer"] = config.n_layer
-    model_args["dropout"] = config.dropout
-    optim_args["lr"] = config.lr
-    always_save_checkpoint = False
-
-    model = GPT(**model_args)
-    model.to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), **optim_args)
+    global never_save_checkpoint
 
     with wandb.init(project=wandb_project_name, name=wandb_run_name, config=config):
+        config = wandb.config
+        model_args["n_embd"] = config.n_embd
+        model_args["n_head"] = config.n_head
+        model_args["n_layer"] = config.n_layer
+        model_args["dropout"] = config.dropout
+        optim_args["lr"] = config.lr
+        never_save_checkpoint = True
+
+        model = GPT(**model_args)
+        model.to(device)
+        optimizer = torch.optim.AdamW(model.parameters(), **optim_args)
+
         train_gpt(model, optimizer)
 
 
