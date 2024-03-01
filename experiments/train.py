@@ -37,7 +37,7 @@ optim_args = {
     "betas": (beta1, beta2),
 }
 load_from_checkpoint = False
-wandb_project_name = "protein-map-venome2"
+wandb_project_name = "protein-map-pdb"
 wandb_run_name = "gpt" + str(time.time())
 
 
@@ -130,6 +130,10 @@ def train_gpt(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
         optimizer.step()
 
 
+def num_params(m):
+    print(sum(p.numel() for p in m.parameters()) / 1e6, "M parameters")
+
+
 if __name__ == "__main__":
     wandb.login()
     with wandb.init(
@@ -137,14 +141,19 @@ if __name__ == "__main__":
         name=wandb_run_name,
         config={"batch_size": batch_size, **model_args},
     ):
-        df = pd.read_csv("./data-venome.csv")
+        df = pd.read_parquet("./datasets/pdb-no-model-no-asm-64-2048.parquet")
         train, val = dp.get_train_val_split(df["3Di"].tolist())
+        print("Loaded dataset")
 
         if load_from_checkpoint:
             model, optimizer = load_checkpoint("./")
+            print("Loaded model from checkpoint")
+            num_params(model)
         else:
             model = GPT(**model_args)
             model.to(device)
             optimizer = torch.optim.AdamW(model.parameters(), **optim_args)
+            print("Created model")
+            num_params(model)
 
         train_gpt(model, optimizer)
