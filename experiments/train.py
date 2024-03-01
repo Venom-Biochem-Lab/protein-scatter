@@ -10,7 +10,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 batch_size = 64
 block_size = 63
 vocab_size = 20
-max_iters = 20_000
+max_iters = 1_000
 eval_interval = 100
 eval_iters = 200
 learning_rate = 5e-4
@@ -39,6 +39,11 @@ optim_args = {
 load_from_checkpoint = False
 wandb_project_name = "protein-map-pdb"
 wandb_run_name = "gpt" + str(time.time())
+
+# should be populated in the main func
+train = None
+val = None
+wandb_sweep = False
 
 
 @torch.no_grad()
@@ -99,6 +104,9 @@ def load_checkpoint(dir: str):
 
 
 def train_gpt(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
+    global train
+    global val
+
     best_val_loss = float(13420666)
     for iter in range(max_iters):
         # every once in a while evaluate the loss on train and val sets
@@ -134,17 +142,32 @@ def num_params(m):
     print(sum(p.numel() for p in m.parameters()) / 1e6, "M parameters")
 
 
-if __name__ == "__main__":
-    wandb.login()
-    with wandb.init(
-        project=wandb_project_name,
-        name=wandb_run_name,
-        config={"batch_size": batch_size, **model_args},
-    ):
-        df = pd.read_parquet("./datasets/pdb-no-model-no-asm-64-2048.parquet")
-        train, val = dp.get_train_val_split(df["3Di"].tolist())
-        print("Loaded dataset")
+def sweep_train_api(config=None):
+    global model_args
+    global optim_args
+    global always_save_checkpoint
 
+    model_args["n_embd"] = config.n_embd
+    model_args["n_head"] = config.n_head
+    model_args["n_layer"] = config.n_layer
+    model_args["dropout"] = config.dropout
+    optim_args["lr"] = config.lr
+    always_save_checkpoint = False
+
+    model = GPT(**model_args)
+    model.to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), **optim_args)
+
+    with wandb.init(project=wandb_project_name, name=wandb_run_name, config=config):
+        train_gpt(model, optimizer)
+
+
+if __name__ == "__main__":
+    df = pd.read_parquet("./datasets/pdb-no-model-no-asm-64-2048.parquet")
+    train, val = dp.get_train_val_split(df["3Di"].tolist())
+    print("Loaded dataset")
+
+    if not wandb_sweep:
         if load_from_checkpoint:
             model, optimizer = load_checkpoint("./")
             print("Loaded model from checkpoint")
@@ -156,4 +179,24 @@ if __name__ == "__main__":
             print("Created model")
             num_params(model)
 
-        train_gpt(model, optimizer)
+        wandb.login()
+        with wandb.init(
+            project=wandb_project_name,
+            name=wandb_run_name,
+            config={"batch_size": batch_size, **model_args},
+        ):
+            train_gpt(model, optimizer)
+    else:
+        sweep_config = {
+            "method": "random",
+            "metric": {"name": "val_loss", "goal": "minimize"},
+            "parameters": {
+                "lr": {"max": 0.1, "min": 0.0001},
+                "n_embd": {"values": [128, 256, 512, 1024]},
+                "n_head": {"values": [4, 8, 16]},
+                "n_layer": {"values": [4, 8, 16]},
+                "dropout": {"values": [0.0, 0.1]},
+            },
+        }
+        sweep_id = wandb.sweep(sweep_config, project=wandb_project_name)
+        wandb.agent(sweep_id, sweep_train_api)
