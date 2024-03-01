@@ -36,7 +36,7 @@ to_3Di = {i: letter for i, letter in enumerate(TOKENS)}
 
 
 def encode(repr_3Di: str):
-    return [to_index[letter] for letter in repr_3Di]
+    return [to_index[letter.upper()] for letter in repr_3Di]
 
 
 def decode(encoded: list):

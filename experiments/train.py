@@ -7,8 +7,8 @@ import wandb
 import time
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-batch_size = 16
-block_size = 128
+batch_size = 64
+block_size = 63
 vocab_size = 20
 max_iters = 20_000
 eval_interval = 100
@@ -16,8 +16,8 @@ eval_iters = 200
 learning_rate = 5e-4
 vocab_size = 20
 n_embd = 256
-n_head = 4
-n_layer = 4
+n_head = 8
+n_layer = 8
 bias = False
 dropout = 0.0
 beta1 = 0.9
