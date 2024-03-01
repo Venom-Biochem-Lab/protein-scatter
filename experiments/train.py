@@ -7,8 +7,8 @@ import wandb
 import time
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-batch_size = 64
-block_size = 63
+batch_size = 32
+block_size = 128
 vocab_size = 20
 max_iters = 1_000
 eval_interval = 100
@@ -23,9 +23,7 @@ dropout = 0.0
 beta1 = 0.9
 beta2 = 0.95
 always_save_checkpoint = True
-never_save_checkpoint = (
-    False  # has priority and also disables saving on lowest loss checkpoint saving
-)
+never_save_checkpoint = False
 model_args = {
     "vocab_size": vocab_size,
     "n_embd": n_embd,
@@ -40,13 +38,13 @@ optim_args = {
     "betas": (beta1, beta2),
 }
 load_from_checkpoint = False
-wandb_project_name = "protein-map-pdb"
+wandb_project_name = "protein-map-pdb-search"
 wandb_run_name = "gpt" + str(time.time())
 
 # should be populated in the main func
 train = None
 val = None
-wandb_sweep = False
+wandb_sweep = True
 
 
 @torch.no_grad()
@@ -125,9 +123,7 @@ def train_gpt(model: torch.nn.Module, optimizer: torch.optim.Optimizer):
                     "train_loss": losses["train"],
                 }
             )
-            if not never_save_checkpoint and (
-                iter > 0 and losses["val"] < best_val_loss or always_save_checkpoint
-            ):
+            if not never_save_checkpoint and (iter > 0 and losses["val"] < best_val_loss or always_save_checkpoint):
                 best_val_loss = losses["val"]
                 save_checkpoint("./", model, optimizer, iter, best_val_loss)
 
@@ -151,13 +147,14 @@ def sweep_train_api(config=None):
     global model_args
     global optim_args
     global never_save_checkpoint
-
+    global block_size
+    
     with wandb.init(project=wandb_project_name, name=wandb_run_name, config=config):
         config = wandb.config
+        block_size = config.block_size
         model_args["n_embd"] = config.n_embd
         model_args["n_head"] = config.n_head
         model_args["n_layer"] = config.n_layer
-        model_args["dropout"] = config.dropout
         optim_args["lr"] = config.lr
         never_save_checkpoint = True
 
@@ -169,7 +166,7 @@ def sweep_train_api(config=None):
 
 
 if __name__ == "__main__":
-    df = pd.read_parquet("./datasets/pdb-no-model-no-asm-64-2048.parquet")
+    df = pd.read_parquet("./datasets/pdb-no-model-no-asm-129-2048.parquet")
     train, val = dp.get_train_val_split(df["3Di"].tolist())
     print("Loaded dataset")
 
@@ -199,10 +196,10 @@ if __name__ == "__main__":
             "parameters": {
                 "lr": {"max": 0.1, "min": 0.0001},
                 "n_embd": {"values": [128, 256, 512, 1024]},
+                "block_size": {"values": [64, 128]},
                 "n_head": {"values": [4, 8, 16]},
-                "n_layer": {"values": [4, 8, 16]},
-                "dropout": {"values": [0.0, 0.1]},
+                "n_layer": {"values": [4, 8, 16]}
             },
         }
         sweep_id = wandb.sweep(sweep_config, project=wandb_project_name)
-        wandb.agent(sweep_id, sweep_train_api, count=10)
+        wandb.agent(sweep_id, sweep_train_api, count=20)
