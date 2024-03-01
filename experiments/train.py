@@ -199,4 +199,4 @@ if __name__ == "__main__":
             },
         }
         sweep_id = wandb.sweep(sweep_config, project=wandb_project_name)
-        wandb.agent(sweep_id, sweep_train_api)
+        wandb.agent(sweep_id, sweep_train_api, count=10)
