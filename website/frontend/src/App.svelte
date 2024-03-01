@@ -3,7 +3,7 @@
 	import svelteLogo from "./assets/svelte.svg";
 	import viteLogo from "/vite.svg";
 	import Counter from "./lib/Counter.svelte";
-	Backend.test().then((d) => console.log(d));
+	Backend.getData(100_000).then((d) => console.log(d));
 </script>
 
 <main>

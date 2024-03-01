@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, ConfigDict
+import pandas as pd
 
 
 # https://github.com/zeno-ml/zeno-hub/blob/9d2f8b5841d99aeba9ec405b0bc6a5b1272b276f/backend/zeno_backend/classes/base.py#L20
@@ -49,6 +50,8 @@ def init_fastapi_app() -> FastAPI:
     return app
 
 
+df = pd.read_parquet("./data/embed2d.parquet")
+print("data downloaded")
 app = init_fastapi_app()
 disable_cors(app, origins=["*"])
 
@@ -60,3 +63,19 @@ class TestResponse(BaseModel):
 @app.get("/", response_model=TestResponse)
 def test():
     return TestResponse(nice=1)
+
+
+class DataResponse(BaseModel):
+    names: list[str]
+    x: list[float]
+    y: list[float]
+
+
+@app.get("/data/{limit}", response_model=DataResponse)
+def get_data(limit: int):
+    global df
+    return DataResponse(
+        x=df["x"].tolist()[:limit],
+        y=df["y"].tolist()[:limit],
+        names=df["name"].tolist()[:limit],
+    )
