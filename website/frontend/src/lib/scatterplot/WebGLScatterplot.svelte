@@ -79,4 +79,9 @@
 	}
 </script>
 
-<canvas bind:this={canvasEl} {width} {height} />
+<canvas
+	bind:this={canvasEl}
+	{width}
+	{height}
+	style="outline: 1px solid grey;"
+/>

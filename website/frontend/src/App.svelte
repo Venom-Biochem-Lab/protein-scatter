@@ -9,20 +9,51 @@
 	function reformatData(data: DataResponse): Data {
 		let result: Data = [];
 		for (let i = 0; i < data.x.length; i++) {
-			result.push([data.x[i], data.y[i], 3, 1]);
+			let color = 3;
+			let opacity = 0.05;
+			if (i < 386) {
+				color = 0;
+				opacity = 1;
+			}
+			result.push([data.x[i], data.y[i], color, opacity]);
 		}
 		return result;
 	}
+	function nameToCode(name: string) {
+		const code = name.slice(3, 3 + 4);
+		return code;
+	}
+	function idxToName(idx: number): string {
+		const filename = data.names[idx];
+		return filename;
+	}
+	let names: string[] = [];
 </script>
 
-<div style="outline: 1px solid grey;">
+<div style="display: flex; gap: 20px;">
 	{#if data}
-		<Scatterplot
-			width={1000}
-			height={1000}
-			colorRange={schemeCategory10}
-			data={reformatData(data)}
-			on:lasso={(e) => console.log(e.detail)}
-		/>
+		<div>
+			<Scatterplot
+				width={700}
+				height={700}
+				colorRange={schemeCategory10}
+				data={reformatData(data)}
+				on:lasso={(e) => {
+					const idxs = e.detail;
+					names = idxs.map((d) => idxToName(d));
+				}}
+			/>
+		</div>
+		<div style="display: flex; flex-direction: column; gap:5px;">
+			{#each names as name}
+				<div>
+					<a
+						href="https://www.rcsb.org/structure/{nameToCode(
+							name
+						).toUpperCase()}">{name}</a
+					>
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
