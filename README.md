@@ -10,12 +10,12 @@ What makes this system different? Here I explicitly model each protein as the in
 
 - [x] read from pdb file 3D center location of each amino acid (as $\alpha$ carbon for now)
 - [x] extract features relevant to the 3D info
-- [ ] Train sequence model on the new alphabet
+- [x] Train sequence model on the new alphabet
 	- [x] Create a small dataset (3 train, 1 val of relatively small proteins)
 	- [x] Create a transformer that can overfit that dataset (simply)
 - [x] extract embeddings and visualize in 2D
 - [x] filter all of PDB dataset down to ~100k proteins of length between 64 and 2048
-- [ ] Train sequence model on subset of PDB for a ton of iterations (might take many days)
+- [x] Train sequence model on subset of PDB for a ton of iterations (might take many days)
 - [ ] extract embeddings and visualize in 2D
 - [ ] create interface around it
 
