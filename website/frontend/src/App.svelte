@@ -5,16 +5,18 @@
 	import type { Data } from "./lib/types";
 
 	let data: DataResponse;
-	Backend.getData(100_000).then((d) => (data = d));
+	Backend.getData(1000000).then((d) => (data = d));
 	function reformatData(data: DataResponse): Data {
 		let result: Data = [];
 		for (let i = 0; i < data.x.length; i++) {
+			// let color = 3;
+			// let opacity = 0.05;
+			// if (i < 386) {
+			// 	color = 0;
+			// 	opacity = 1;
+			// }
 			let color = 3;
-			let opacity = 0.05;
-			if (i < 386) {
-				color = 0;
-				opacity = 1;
-			}
+			let opacity = 0.1;
 			result.push([data.x[i], data.y[i], color, opacity]);
 		}
 		return result;

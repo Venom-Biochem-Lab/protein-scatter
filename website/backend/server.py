@@ -50,7 +50,7 @@ def init_fastapi_app() -> FastAPI:
     return app
 
 
-df = pd.read_parquet("./data/embed2D-venome.parquet")
+df = pd.read_parquet("./data/embed2D-large-2-50k-all.parquet")
 print("data downloaded")
 app = init_fastapi_app()
 disable_cors(app, origins=["*"])
