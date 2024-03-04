@@ -5,7 +5,7 @@
 	import type { Data } from "./lib/types";
 
 	let data: DataResponse;
-	Backend.getData(1000000).then((d) => (data = d));
+	Backend.getData(1_000_000).then((d) => (data = d));
 	function reformatData(data: DataResponse): Data {
 		let result: Data = [];
 		for (let i = 0; i < data.x.length; i++) {

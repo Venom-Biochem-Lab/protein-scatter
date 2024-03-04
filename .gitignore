@@ -8,3 +8,4 @@ pdb/
 wandb/
 checkpoint*
 datasets/
+models/

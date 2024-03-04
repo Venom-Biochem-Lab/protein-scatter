@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, ConfigDict
 import pandas as pd
+from to3Di import to3Di
+from embed import repr_3Di_to_embed, load_model
 
 
 # https://github.com/zeno-ml/zeno-hub/blob/9d2f8b5841d99aeba9ec405b0bc6a5b1272b276f/backend/zeno_backend/classes/base.py#L20
@@ -50,8 +52,11 @@ def init_fastapi_app() -> FastAPI:
     return app
 
 
-df = pd.read_parquet("./data/embed2D-large-2-50k-all.parquet")
+df = pd.read_parquet("./data/embed2D-large-3.parquet")
 print("data downloaded")
+model = load_model("./data/models/checkpoint-large-3.pt", "cpu")
+print("model downloaded")
+
 app = init_fastapi_app()
 disable_cors(app, origins=["*"])
 
@@ -71,11 +76,25 @@ class DataResponse(BaseModel):
     y: list[float]
 
 
-@app.get("/data/{limit}", response_model=DataResponse)
-def get_data(limit: int):
+def data_to_embed():
+    converted = to3Di("./data")
+    repr_3Di = converted.repr_3Di[0]
+    embed = repr_3Di_to_embed(model, repr_3Di)
+    avg_embed = embed.mean(0)
+    return avg_embed
+
+
+@app.get("/similar", response_model=None)
+def get_similar():
+    global model
+    a = data_to_embed()
+    print(a.shape)
+    return None
+
+
+@app.get("/data", response_model=DataResponse)
+def get_data():
     global df
     return DataResponse(
-        x=df["x"].tolist()[:limit],
-        y=df["y"].tolist()[:limit],
-        names=df["name"].tolist()[:limit],
+        x=df["x"].tolist(), y=df["y"].tolist(), names=df["name"].tolist()
     )
