@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict
 import pandas as pd
 from to3Di import to3Di
 from embed import repr_3Di_to_embed, load_model
+import numpy as np
 
 
 # https://github.com/zeno-ml/zeno-hub/blob/9d2f8b5841d99aeba9ec405b0bc6a5b1272b276f/backend/zeno_backend/classes/base.py#L20
@@ -52,8 +53,24 @@ def init_fastapi_app() -> FastAPI:
     return app
 
 
+class VectorDB:
+    def __init__(self, df):
+        self.index = np.vstack(df["embed"].values)
+
+    @property
+    def shape(self):
+        return self.index.shape
+
+    def query(self, query_embed: np.ndarray) -> np.ndarray:
+        diff = self.index - query_embed
+        dists = np.linalg.norm(diff, axis=1)
+        return dists
+
+
 df = pd.read_parquet("./data/embed2D-large-3.parquet")
 print("data downloaded")
+index = VectorDB(df)
+print("index constructed", index.shape)
 model = load_model("./data/models/checkpoint-large-3.pt", "cpu")
 print("model downloaded")
 
@@ -80,16 +97,17 @@ def data_to_embed():
     converted = to3Di("./data")
     repr_3Di = converted.repr_3Di[0]
     embed = repr_3Di_to_embed(model, repr_3Di)
-    avg_embed = embed.mean(0)
+    avg_embed = embed.mean(0).reshape(1, -1)
     return avg_embed
 
 
-@app.get("/similar", response_model=None)
+@app.get("/similar", response_model=list[float])
 def get_similar():
     global model
-    a = data_to_embed()
-    print(a.shape)
-    return None
+    global index
+    embed = data_to_embed().numpy()
+    similarity_scores = index.query(embed)
+    return similarity_scores.tolist()
 
 
 @app.get("/data", response_model=DataResponse)
