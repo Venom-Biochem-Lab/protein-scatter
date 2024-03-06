@@ -1,22 +1,71 @@
 <script lang="ts">
-	import { Backend, type DataResponse } from "./lib/backend";
+	import {
+		Backend,
+		type DataResponse,
+		type SimilarResponse,
+	} from "./lib/backend";
 	import Scatterplot from "./lib/scatterplot/Scatterplot.svelte";
-	import { schemeCategory10 } from "d3";
+	import * as d3 from "d3";
 	import type { Data } from "./lib/types";
+	import { onMount } from "svelte";
+
+	let colors = d3.schemeCategory10;
+
+	/**
+	 * Takes a function that produces colors from numbers into a fixed sized array
+	 *
+	 * @returns string array of hex colors
+	 */
+	function interpolateToStringArray(
+		colorInterpolate: (x: number) => string,
+		length: number,
+		padLeft = 0,
+		padRight = 0,
+		reverse = false
+	) {
+		const colors: string[] = new Array(length);
+		const interval = 1 / (length - padLeft - padRight);
+		let inputValue = 0 + padLeft;
+		for (let i = 0; i < length; i++) {
+			// must be a normalized value
+			if (inputValue > 1) {
+				inputValue = 1;
+			} else if (inputValue < 0) {
+				inputValue = 0;
+			}
+
+			// from continuous function to string hex
+			const rgbString = colorInterpolate(
+				reverse ? 1 - inputValue : inputValue
+			);
+			colors[i] = d3.color(rgbString)!.formatHex();
+			inputValue += interval;
+		}
+
+		return colors;
+	}
 
 	let data: DataResponse;
-	Backend.getData(1_000_000).then((d) => (data = d));
+	let similar: SimilarResponse;
+
+	onMount(async () => {
+		data = await Backend.getData();
+		console.log(data);
+	});
+
 	function reformatData(data: DataResponse): Data {
 		let result: Data = [];
 		for (let i = 0; i < data.x.length; i++) {
-			// let color = 3;
-			// let opacity = 0.05;
-			// if (i < 386) {
-			// 	color = 0;
-			// 	opacity = 1;
-			// }
-			let color = 3;
+			let color = 0;
 			let opacity = 0.1;
+			if (
+				data.names[i].includes("Gh") ||
+				data.names[i].includes("Lb") ||
+				data.names[i].includes("Lh")
+			) {
+				opacity = 0.9;
+				color = 3;
+			}
 			result.push([data.x[i], data.y[i], color, opacity]);
 		}
 		return result;
@@ -38,7 +87,7 @@
 			<Scatterplot
 				width={700}
 				height={700}
-				colorRange={schemeCategory10}
+				colorRange={colors}
 				data={reformatData(data)}
 				on:lasso={(e) => {
 					const idxs = e.detail;

@@ -1,6 +1,7 @@
 import subprocess
 from dataclasses import dataclass
 import os
+import pandas as pd
 
 TEMP_DIR = ".temp"
 FOLDSEEK_EXECUTABLE = "foldseek"
@@ -71,3 +72,10 @@ def to3Di(input_dir, db="3DiAA", verbose=False, include_amino_acids=False):
     remove_db(db)
 
     return parsed
+
+
+if __name__ == "__main__":
+    res = to3Di("../master_venom_galaxy")
+    pd.DataFrame({"name": res.names, "3Di": res.repr_3Di}).to_parquet(
+        "all-venome.parquet", index=False
+    )
