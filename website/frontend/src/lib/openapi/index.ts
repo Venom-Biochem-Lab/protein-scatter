@@ -8,8 +8,7 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { DataResponse } from './models/DataResponse';
-export type { HTTPValidationError } from './models/HTTPValidationError';
+export type { SimilarResponse } from './models/SimilarResponse';
 export type { TestResponse } from './models/TestResponse';
-export type { ValidationError } from './models/ValidationError';
 
 export { DefaultService } from './services/DefaultService';

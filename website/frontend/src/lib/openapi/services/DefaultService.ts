@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { DataResponse } from '../models/DataResponse';
+import type { SimilarResponse } from '../models/SimilarResponse';
 import type { TestResponse } from '../models/TestResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -20,23 +21,25 @@ export class DefaultService {
         });
     }
     /**
+     * Get Similar
+     * @returns SimilarResponse Successful Response
+     * @throws ApiError
+     */
+    public static getSimilar(): CancelablePromise<SimilarResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/similar',
+        });
+    }
+    /**
      * Get Data
-     * @param limit
      * @returns DataResponse Successful Response
      * @throws ApiError
      */
-    public static getData(
-        limit: number,
-    ): CancelablePromise<DataResponse> {
+    public static getData(): CancelablePromise<DataResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/data/{limit}',
-            path: {
-                'limit': limit,
-            },
-            errors: {
-                422: `Validation Error`,
-            },
+            url: '/data',
         });
     }
 }
