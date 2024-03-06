@@ -10,10 +10,10 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 batch_size = 64
 block_size = 128
 vocab_size = 20
-max_iters = 10_000
+max_iters = 20_000
 eval_interval = 100
 eval_iters = 50
-learning_rate = 3e-4
+learning_rate = 1e-4
 vocab_size = 20
 n_embd = 256
 n_head = 8
@@ -25,8 +25,8 @@ beta2 = 0.999
 always_save_checkpoint = True
 never_save_checkpoint = False
 load_from_checkpoint = True
-input_checkpoint_file = "checkpoint-large.pt"
-output_checkpoint_file = "checkpoint-large-2.pt"
+input_checkpoint_file = "checkpoint-large-2.pt"
+output_checkpoint_file = "checkpoint-large-3.pt"
 model_args = {
     "vocab_size": vocab_size,
     "n_embd": n_embd,
