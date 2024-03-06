@@ -16,7 +16,7 @@ What makes this system different? Here I explicitly model each protein as the in
 - [x] extract embeddings and visualize in 2D
 - [x] filter all of PDB dataset down to ~100k proteins of length between 64 and 2048
 - [x] Train sequence model on subset of PDB for a ton of iterations (might take many days)
-- [ ] extract embeddings and visualize in 2D
+- [x] extract embeddings and visualize in 2D
 - [ ] create interface around it
 
 
