@@ -53,30 +53,9 @@ def init_fastapi_app() -> FastAPI:
     return app
 
 
-def normalize(v):
-    return v / np.linalg.norm(v, axis=1).reshape(-1, 1)
-
-
-class VectorDB:
-    def __init__(self, df):
-        self.index = normalize(np.vstack(df["embed"].values))
-
-    @property
-    def shape(self):
-        return self.index.shape
-
-    def query(self, query_embed: np.ndarray) -> np.ndarray:
-        out = self.index @ normalize(query_embed).T
-        return out.T.squeeze()  # (n,)
-
-
 df = pd.read_parquet("./data/embed-sub-venome-2D-8.parquet")
-
+info_venome = pd.read_parquet("./data/all-venome.parquet")
 print("data downloaded")
-# index = VectorDB(df)
-# print("index constructed", index.shape)
-# model = load_model("./data/models/checkpoint-large-3.pt", "cpu")
-# print("model downloaded")
 
 app = init_fastapi_app()
 disable_cors(app, origins=["*"])
@@ -97,31 +76,14 @@ class DataResponse(BaseModel):
     y: list[float]
 
 
-def data_to_embed():
-    converted = to3Di("./data")
-    repr_3Di = converted.repr_3Di[0]
-    embed = repr_3Di_to_embed(model, repr_3Di)
-    avg_embed = embed.mean(0).reshape(1, -1)
-    return avg_embed
+class InfoVenomeResponse(BaseModel):
+    names: list[str]
 
 
-class SimilarResponse(BaseModel):
-    scores: list[float]
-    min: float
-    max: float
-
-
-@app.get("/similar", response_model=SimilarResponse)
-def get_similar():
-    global model
-    global index
-    embed = data_to_embed().numpy()
-    similarity_scores = index.query(embed)
-    min_score = similarity_scores.min()
-    max_score = similarity_scores.max()
-    return SimilarResponse(
-        scores=similarity_scores.tolist(), min=min_score, max=max_score
-    )
+@app.get("/info/venome", response_model=InfoVenomeResponse)
+def get_info_venome():
+    global info_venome
+    return InfoVenomeResponse(names=info_venome["name"].tolist())
 
 
 @app.get("/data", response_model=DataResponse)
