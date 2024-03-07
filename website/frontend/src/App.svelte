@@ -15,6 +15,7 @@
 	let selectedName: string | undefined;
 	let searchTable: string = "";
 	let lassoedIdxs: number[] = [];
+	let alignmentSelected: string | undefined;
 
 	/**
 	 * Takes a function that produces colors from numbers into a fixed sized array
@@ -175,8 +176,10 @@
 						on:click={() => {
 							if (selectedName === name) {
 								selectedName = undefined;
+								alignmentSelected = undefined;
 							} else {
 								selectedName = name;
+								alignmentSelected = undefined;
 							}
 							reformatData();
 						}}
@@ -194,6 +197,7 @@
 				data={scatterData}
 				on:lasso={(e) => {
 					lassoedIdxs = e.detail;
+					alignmentSelected = undefined;
 				}}
 			/>
 		</div>
@@ -205,7 +209,9 @@
 				<Molstar
 					width={400}
 					height={400}
-					url="http://localhost:8000/file/{selectedName}"
+					url={!alignmentSelected
+						? `http://localhost:8000/file/${selectedName}`
+						: `http://localhost:8000/align/${selectedName}/${alignmentSelected}`}
 					format="pdb"
 				/>
 			</div>
@@ -220,10 +226,21 @@
 						{@const name = data.names[idx]}
 						{@const code = nameToCode(name)}
 						{#if !venomeInfo.names.includes(name)}
-							<a
+							<div
+								on:click={() => {
+									alignmentSelected = name.slice(
+										0,
+										name.indexOf(".gz") + ".gz".length
+									);
+								}}
+								class="pdb"
+							>
+								{code}
+							</div>
+							<!-- <a
 								href="https://www.rcsb.org/structure/{code}"
 								class="pdb">{code}</a
-							>
+							> -->
 						{/if}
 					{/each}
 				</div>
@@ -234,8 +251,8 @@
 
 <style>
 	.pdb {
-		--color: rgba(20, 151, 253);
-		--bg-color: rgba(20, 151, 253, 0.1);
+		--color: #f66c02;
+		--bg-color: #f66c0220;
 		padding: 2px;
 		padding-left: 5px;
 		padding-right: 5px;

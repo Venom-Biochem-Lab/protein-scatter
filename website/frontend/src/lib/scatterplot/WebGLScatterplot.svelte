@@ -37,6 +37,7 @@
 			width,
 			height,
 			backgroundColor: [0, 0, 0, 1],
+			lassoColor: "#f66c02",
 		});
 		return scatterPtr;
 	}
