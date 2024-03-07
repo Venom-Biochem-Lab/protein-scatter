@@ -21,6 +21,11 @@
 				format,
 				binary,
 			},
+			bgColor: {
+				r: 0,
+				g: 0,
+				b: 0,
+			},
 			subscribeEvents: false,
 			selectInteraction: true,
 			alphafoldView: true,

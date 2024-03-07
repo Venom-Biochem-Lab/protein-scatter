@@ -16,7 +16,55 @@
 	let searchTable: string = "";
 	let lassoedIdxs: number[] = [];
 	let alignmentSelected: string | undefined;
+	let alignmentSelectedInfo: PDBInfo | undefined;
 
+	type PDBInfo = { title: string; classification: string; organisms: string };
+	async function requestPDBInfo(code: string): Promise<PDBInfo> {
+		const query = `
+		query structure ($id: String!) {
+			entry(entry_id:$id){
+				struct {
+					title
+				}
+				struct_keywords {
+					pdbx_keywords
+				}
+				polymer_entities {
+					rcsb_entity_source_organism {
+					scientific_name
+					}
+				}
+			}
+		}
+		`;
+		const out = await fetch("https://data.rcsb.org/graphql", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ query, variables: { id: code } }),
+		});
+		const _json = await out.json();
+		const root = _json.data.entry;
+		const title = root?.struct?.title ?? "No title";
+		const classification =
+			root.struct_keywords?.pdbx_keywords ?? "No classification";
+		const entities = root?.polymer_entities ?? [];
+		const sources = entities.map(
+			(d) => d?.rcsb_entity_source_organism ?? []
+		);
+		const organisms = sources.map((d) => d.map((_d) => _d.scientific_name));
+		let flat: string[] = [];
+		for (let i = 0; i < organisms.length; i++) {
+			flat = [...flat, ...organisms[i]];
+		}
+
+		return {
+			title,
+			classification,
+			organisms: Array.from(new Set(flat)).join(", "),
+		};
+	}
 	/**
 	 * Takes a function that produces colors from numbers into a fixed sized array
 	 *
@@ -177,9 +225,11 @@
 							if (selectedName === name) {
 								selectedName = undefined;
 								alignmentSelected = undefined;
+								alignmentSelectedInfo = undefined;
 							} else {
 								selectedName = name;
 								alignmentSelected = undefined;
+								alignmentSelectedInfo = undefined;
 							}
 							reformatData();
 						}}
@@ -198,6 +248,7 @@
 				on:lasso={(e) => {
 					lassoedIdxs = e.detail;
 					alignmentSelected = undefined;
+					alignmentSelectedInfo = undefined;
 				}}
 			/>
 		</div>
@@ -227,23 +278,46 @@
 						{@const code = nameToCode(name)}
 						{#if !venomeInfo.names.includes(name)}
 							<div
-								on:click={() => {
-									alignmentSelected = name.slice(
+								on:click={async () => {
+									const prev = name.slice(
 										0,
 										name.indexOf(".gz") + ".gz".length
 									);
+									if (prev === alignmentSelected) {
+										alignmentSelected = undefined;
+										alignmentSelectedInfo = undefined;
+									} else {
+										alignmentSelected = prev;
+										alignmentSelectedInfo =
+											await requestPDBInfo(code);
+									}
 								}}
 								class="pdb"
 							>
+								<img
+									src="https://cdn.rcsb.org/images/structures/{code.toLowerCase()}_assembly-1.jpeg"
+									width={60}
+									height={60}
+									style="border: 1px solid white; border-radius: 5px; margin-top: 3px;"
+								/>
 								{code}
 							</div>
-							<!-- <a
-								href="https://www.rcsb.org/structure/{code}"
-								class="pdb">{code}</a
-							> -->
 						{/if}
 					{/each}
 				</div>
+			</div>
+		{/if}
+		{#if alignmentSelected && alignmentSelectedInfo}
+			{@const code = nameToCode(alignmentSelected)}
+			<div id="bottom-right-sidebar">
+				<a href="https://www.rcsb.org/structure/{code}" class="pdb"
+					>RCSB:{code}</a
+				>
+				<h1 class="hide-text">{alignmentSelectedInfo.title}</h1>
+				<p>
+					<b>Classification</b>: {alignmentSelectedInfo.classification}
+				</p>
+				<p><b>Organisms</b>: {alignmentSelectedInfo.organisms}</p>
 			</div>
 		{/if}
 	{/if}
@@ -262,6 +336,12 @@
 		border-radius: 5px;
 		cursor: pointer;
 		transition: all ease-in-out 0.2s;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
 	}
 	.pdb:hover {
 		scale: 1.05;
@@ -278,6 +358,12 @@
 		border-radius: 5px;
 		cursor: pointer;
 		transition: all ease-in-out 0.2s;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
 	}
 	.venome:hover {
 		scale: 1.05;
@@ -330,16 +416,38 @@
 		background: #37415140;
 	}
 	#right-sidebar {
-		width: 400px;
-		height: 500px;
+		width: 350px;
+		height: 365px;
 		padding: 10px;
 		border: 1px solid #374151;
 		border-radius: 5px;
 		position: absolute;
 		right: 10px;
-		bottom: 10px;
+		top: 430px;
 		backdrop-filter: blur(10px);
 		background: #37415140;
 		overflow-y: scroll;
+	}
+	#bottom-right-sidebar {
+		width: 600px;
+		height: 140px;
+		padding: 15px;
+		border: 1px solid #374151;
+		border-radius: 5px;
+		position: absolute;
+		right: 10px;
+		bottom: 20px;
+		backdrop-filter: blur(10px);
+		background: #37415140;
+		overflow-y: scroll;
+	}
+	h1 {
+		font-size: 22px;
+		font-weight: 500;
+	}
+	.hide-text {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 </style>

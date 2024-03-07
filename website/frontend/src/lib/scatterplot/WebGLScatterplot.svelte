@@ -36,7 +36,7 @@
 			canvas: canvasEl,
 			width,
 			height,
-			backgroundColor: [0, 0, 0, 1],
+			// backgroundColor: "#000000",
 			lassoColor: "#f66c02",
 		});
 		return scatterPtr;
