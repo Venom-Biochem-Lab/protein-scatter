@@ -3,9 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, ConfigDict
 import pandas as pd
-from to3Di import to3Di
-from embed import repr_3Di_to_embed, load_model
-import numpy as np
+from fastapi.responses import FileResponse
 
 
 # https://github.com/zeno-ml/zeno-hub/blob/9d2f8b5841d99aeba9ec405b0bc6a5b1272b276f/backend/zeno_backend/classes/base.py#L20
@@ -78,6 +76,11 @@ class DataResponse(BaseModel):
 
 class InfoVenomeResponse(BaseModel):
     names: list[str]
+
+
+@app.get("/file/{filename:str}")
+def get_pdb_file(filename: str):
+    return FileResponse(f"../../master_venom_galaxy/{filename}", filename=filename)
 
 
 @app.get("/info/venome", response_model=InfoVenomeResponse)

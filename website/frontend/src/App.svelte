@@ -8,6 +8,7 @@
 	import * as d3 from "d3";
 	import type { ScatterPoints } from "./lib/types";
 	import { onMount } from "svelte";
+	import Molstar from "./lib/Molstar.svelte";
 	import { Button, Search } from "flowbite-svelte";
 
 	let colors = ["#f22952", "#FFFFFF"] as string[];
@@ -99,26 +100,17 @@
 </script>
 
 <div id="navbar"><b>Protein Scatter</b></div>
-<div style="display: flex; gap: 20px;">
+<div id="outer" style="display: flex; gap: 20px; position: relative;">
 	{#if venomeInfo && data && scatterData.length > 0}
-		<div>
-			<Scatterplot
-				width={1000}
-				height={1000}
-				colorRange={colors}
-				data={scatterData}
-				on:lasso={(e) => {}}
-			/>
-		</div>
-		<div style="width: 400px;">
-			<div class="mt-5">
+		<div class="sidebar">
+			<div>
 				<Search
 					bind:value={searchTable}
-					placeholder="Search for a venom protein"
+					placeholder="Protein Search..."
 				/>
 			</div>
 			<div
-				class="flex gap-2 flex-wrap mt-5 content-start"
+				class="flex gap-2 flex-wrap mt-5 content-start pl-2"
 				style="height: 800px; overflow-y: scroll;"
 			>
 				{#each venomeInfo.names.filter((d) => !searchTable || d
@@ -139,6 +131,27 @@
 						{name.slice(0, name.indexOf(".")).replaceAll("_", " ")}
 					</div>
 				{/each}
+			</div>
+		</div>
+		<div>
+			<Scatterplot
+				width={document.getElementById("outer").clientWidth}
+				height={970}
+				colorRange={colors}
+				data={scatterData}
+				on:lasso={(e) => {}}
+			/>
+		</div>
+		<div id="right-sidebar">
+			<div style="width: {400}px; height: {400}px; outline: grey;">
+				{#if selectedName}
+					<Molstar
+						width={400}
+						height={400}
+						url="http://localhost:8000/file/{selectedName}"
+						format="pdb"
+					/>
+				{/if}
 			</div>
 		</div>
 	{/if}
@@ -167,5 +180,47 @@
 		padding: 15px;
 		color: white;
 		background: rgba(255, 255, 255, 0.148);
+	}
+	/* width */
+	::-webkit-scrollbar {
+		width: 3px;
+	}
+
+	/* Track */
+	::-webkit-scrollbar-track {
+		background: #37373750;
+	}
+
+	/* Handle */
+	::-webkit-scrollbar-thumb {
+		background: #88888850;
+	}
+
+	/* Handle on hover */
+	::-webkit-scrollbar-thumb:hover {
+		background: #55555550;
+	}
+	.sidebar {
+		width: 250px;
+		padding: 10px;
+		border: 1px solid #374151;
+		border-radius: 5px;
+		position: absolute;
+		left: 10px;
+		top: 10px;
+		backdrop-filter: blur(10px);
+		background: #37415140;
+	}
+	#right-sidebar {
+		width: 450px;
+		height: 940px;
+		padding: 10px;
+		border: 1px solid #374151;
+		border-radius: 5px;
+		position: absolute;
+		right: 10px;
+		top: 10px;
+		backdrop-filter: blur(10px);
+		background: #37415140;
 	}
 </style>
