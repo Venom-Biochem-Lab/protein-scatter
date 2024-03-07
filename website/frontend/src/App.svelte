@@ -14,6 +14,7 @@
 	let colors = ["#f22952", "#FFFFFF"] as string[];
 	let selectedName: string;
 	let searchTable: string = "";
+	let lassoedIdxs: number[] = [];
 
 	/**
 	 * Takes a function that produces colors from numbers into a fixed sized array
@@ -97,6 +98,10 @@
 
 		scatterData = result;
 	}
+	function nameToCode(name: string) {
+		const code = name.slice(3, 3 + 4);
+		return code.toUpperCase();
+	}
 </script>
 
 <div id="navbar"><b>Protein Scatter</b></div>
@@ -139,25 +144,62 @@
 				height={970}
 				colorRange={colors}
 				data={scatterData}
-				on:lasso={(e) => {}}
+				on:lasso={(e) => {
+					lassoedIdxs = e.detail;
+				}}
 			/>
 		</div>
-		<div id="right-sidebar">
-			<div style="width: {400}px; height: {400}px; outline: grey;">
-				{#if selectedName}
-					<Molstar
-						width={400}
-						height={400}
-						url="http://localhost:8000/file/{selectedName}"
-						format="pdb"
-					/>
-				{/if}
+		{#if selectedName || lassoedIdxs.length > 0}
+			<div id="right-sidebar">
+				<div style="width: {400}px; height: {400}px; outline: grey;">
+					{#if selectedName}
+						<Molstar
+							width={400}
+							height={400}
+							url="http://localhost:8000/file/{selectedName}"
+							format="pdb"
+						/>
+					{/if}
+				</div>
+				<div
+					class="flex flex-row gap-2 flex-wrap"
+					style="height: 400px; overflow-y: scroll; align-content: start;"
+				>
+					{#each lassoedIdxs as idx}
+						{@const name = data.names[idx]}
+						{@const code = nameToCode(name)}
+						{#if !venomeInfo.names.includes(name)}
+							<a
+								href="https://www.rcsb.org/structure/{code}"
+								class="pdb">{code}</a
+							>
+						{/if}
+					{/each}
+				</div>
 			</div>
-		</div>
+		{/if}
 	{/if}
 </div>
 
 <style>
+	.pdb {
+		--color: #ffffff;
+		--bg-color: #ffffff30;
+		padding: 2px;
+		padding-left: 5px;
+		padding-right: 5px;
+		border: 1px solid var(--color);
+		background: var(--bg-color);
+		color: var(--color);
+		border-radius: 5px;
+		cursor: pointer;
+		transition: all ease-in-out 0.2s;
+	}
+	.pdb:hover {
+		scale: 1.05;
+		--color: #f22952;
+		--bg-color: #f2295230;
+	}
 	.venome {
 		--color: #ffffff;
 		--bg-color: #ffffff30;
