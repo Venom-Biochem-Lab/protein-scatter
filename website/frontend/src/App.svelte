@@ -10,6 +10,7 @@
 	import { onMount } from "svelte";
 
 	let colors = d3.schemeCategory10 as string[];
+	let selectedName: string;
 
 	/**
 	 * Takes a function that produces colors from numbers into a fixed sized array
@@ -49,7 +50,7 @@
 	let venomeInfo: InfoVenomeResponse;
 
 	onMount(async () => {
-		data = await Backend.getData();
+		// data = await Backend.getData();
 		venomeInfo = await Backend.getInfoVenome();
 	});
 
@@ -74,8 +75,8 @@
 </script>
 
 <div style="display: flex; gap: 20px;">
-	{#if data}
-		<div>
+	{#if venomeInfo}
+		<!-- <div>
 			<Scatterplot
 				width={700}
 				height={700}
@@ -83,6 +84,44 @@
 				data={reformatData(data)}
 				on:lasso={(e) => {}}
 			/>
+		</div> -->
+		<div style="width: 800px;">here</div>
+		<div style="width: 400px;">
+			<h1>{selectedName}</h1>
+
+			<div class="flex gap-2 flex-wrap">
+				{#each venomeInfo.names as name}
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
+					<div
+						class="venome"
+						style={selectedName == name ? "--color: red;" : ""}
+						on:click={() => {
+							selectedName = name;
+						}}
+					>
+						{name.slice(0, name.indexOf(".")).replaceAll("_", " ")}
+					</div>
+				{/each}
+			</div>
 		</div>
 	{/if}
 </div>
+
+<style>
+	.venome {
+		--color: #17bebb;
+		padding: 2px;
+		padding-left: 5px;
+		padding-right: 5px;
+		border: 1px solid var(--color);
+		background: #17bebb10;
+		color: var(--color);
+		border-radius: 5px;
+		cursor: pointer;
+		transition: all ease-in-out 0.2s;
+	}
+	.venome:hover {
+		scale: 1.05;
+	}
+</style>
