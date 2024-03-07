@@ -9,3 +9,4 @@ wandb/
 checkpoint*
 datasets/
 models/
+temp/

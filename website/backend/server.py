@@ -4,6 +4,7 @@ from fastapi.routing import APIRoute
 from pydantic import BaseModel, ConfigDict
 import pandas as pd
 from fastapi.responses import FileResponse
+from align import venome_pdb_align
 
 
 # https://github.com/zeno-ml/zeno-hub/blob/9d2f8b5841d99aeba9ec405b0bc6a5b1272b276f/backend/zeno_backend/classes/base.py#L20
@@ -76,6 +77,12 @@ class DataResponse(BaseModel):
 
 class InfoVenomeResponse(BaseModel):
     names: list[str]
+
+
+@app.get("/align/{venome:str}/{pdb:str}")
+def get_align(venome: str, pdb: str):
+    outpath = venome_pdb_align(venome, pdb)
+    return FileResponse(outpath, filename=f"{venome}-{pdb}-superimposed.pdb")
 
 
 @app.get("/file/{filename:str}")
