@@ -6,11 +6,13 @@
 	} from "./lib/backend";
 	import Scatterplot from "./lib/scatterplot/Scatterplot.svelte";
 	import * as d3 from "d3";
-	import type { Data } from "./lib/types";
+	import type { ScatterPoints } from "./lib/types";
 	import { onMount } from "svelte";
+	import { Button, Search } from "flowbite-svelte";
 
-	let colors = d3.schemeCategory10 as string[];
+	let colors = ["#f22952", "#FFFFFF"] as string[];
 	let selectedName: string;
+	let searchTable: string = "";
 
 	/**
 	 * Takes a function that produces colors from numbers into a fixed sized array
@@ -47,57 +49,91 @@
 	}
 
 	let data: DataResponse;
+	let scatterData: ScatterPoints = [];
 	let venomeInfo: InfoVenomeResponse;
+	let venomeMap: Map<string, number[]>;
 
 	onMount(async () => {
-		// data = await Backend.getData();
+		data = await Backend.getData();
 		venomeInfo = await Backend.getInfoVenome();
+		venomeMap = venomeToDataMap(venomeInfo, data);
+		reformatData();
+		console.log(venomeMap);
 	});
 
-	function reformatData(data: DataResponse): Data {
-		let result: Data = [];
+	function venomeToDataMap(
+		venomeInfo: InfoVenomeResponse,
+		data: DataResponse
+	) {
+		const mapper = new Map<string, number[]>();
+		for (let i = data.names.length - 1; i >= 0; i--) {
+			const name = data.names[i];
+			const isVenomeProtein = venomeInfo.names.includes(name);
+			if (mapper.has(name)) {
+				mapper.get(name)!.push(i);
+			} else if (isVenomeProtein) {
+				mapper.set(name, [i]);
+			} else {
+				break;
+			}
+		}
+		return mapper;
+	}
+	function reformatData() {
+		let result: ScatterPoints = [];
 		for (let i = 0; i < data.x.length; i++) {
-			let color = 0;
+			let color = 1;
 			let opacity = 0.1;
 			result.push([data.x[i], data.y[i], color, opacity]);
 		}
-		return result;
+
+		if (selectedName) {
+			venomeMap.get(selectedName)!.forEach((i) => {
+				result[i][2] = 0;
+				result[i][3] = 0.99;
+			});
+		}
+
+		scatterData = result;
 	}
-	function nameToCode(name: string) {
-		const code = name.slice(3, 3 + 4);
-		return code;
-	}
-	function idxToName(idx: number): string {
-		const filename = data.names[idx];
-		return filename;
-	}
-	let names: string[] = [];
 </script>
 
+<div id="navbar"><b>Protein Scatter</b></div>
 <div style="display: flex; gap: 20px;">
-	{#if venomeInfo}
-		<!-- <div>
+	{#if venomeInfo && data && scatterData.length > 0}
+		<div>
 			<Scatterplot
-				width={700}
-				height={700}
+				width={1000}
+				height={1000}
 				colorRange={colors}
-				data={reformatData(data)}
+				data={scatterData}
 				on:lasso={(e) => {}}
 			/>
-		</div> -->
-		<div style="width: 800px;">here</div>
+		</div>
 		<div style="width: 400px;">
-			<h1>{selectedName}</h1>
-
-			<div class="flex gap-2 flex-wrap">
-				{#each venomeInfo.names as name}
+			<div class="mt-5">
+				<Search
+					bind:value={searchTable}
+					placeholder="Search for a venom protein"
+				/>
+			</div>
+			<div
+				class="flex gap-2 flex-wrap mt-5 content-start"
+				style="height: 800px; overflow-y: scroll;"
+			>
+				{#each venomeInfo.names.filter((d) => !searchTable || d
+							.toLowerCase()
+							.includes(searchTable.toLowerCase())) as name}
 					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<!-- svelte-ignore a11y-no-static-element-interactions -->
 					<div
 						class="venome"
-						style={selectedName == name ? "--color: red;" : ""}
+						style={selectedName == name
+							? "--color: #f22952; --bg-color: #f2295230;"
+							: ""}
 						on:click={() => {
 							selectedName = name;
+							reformatData();
 						}}
 					>
 						{name.slice(0, name.indexOf(".")).replaceAll("_", " ")}
@@ -110,12 +146,13 @@
 
 <style>
 	.venome {
-		--color: #17bebb;
+		--color: #ffffff;
+		--bg-color: #ffffff30;
 		padding: 2px;
 		padding-left: 5px;
 		padding-right: 5px;
 		border: 1px solid var(--color);
-		background: #17bebb10;
+		background: var(--bg-color);
 		color: var(--color);
 		border-radius: 5px;
 		cursor: pointer;
@@ -123,5 +160,12 @@
 	}
 	.venome:hover {
 		scale: 1.05;
+		--color: #f22952;
+		--bg-color: #f2295230;
+	}
+	#navbar {
+		padding: 15px;
+		color: white;
+		background: rgba(255, 255, 255, 0.148);
 	}
 </style>
