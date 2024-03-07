@@ -102,6 +102,50 @@
 		const code = name.slice(3, 3 + 4);
 		return code.toUpperCase();
 	}
+
+	function orderByDist(
+		selectedName: string | undefined,
+		lassoedIdxs: number[]
+	) {
+		if (selectedName === undefined && lassoedIdxs.length > 0)
+			return lassoedIdxs;
+		if (venomeMap && data && lassoedIdxs.length > 0) {
+			const venomeVecs = venomeMap
+				.get(selectedName)!
+				.map((i) => [data.x[i], data.y[i]]);
+			const restVecs = lassoedIdxs.map((i) => [data.x[i], data.y[i]]);
+			// for each venome vec compute it's average distances to the rest of the vecs
+			let smallestDists: number[] = [];
+			let smallest = Infinity;
+			let smallestIdx = -1;
+			for (let i = 0; i < venomeVecs.length; i++) {
+				const venome = venomeVecs[i];
+				let sub = [];
+				let summed = 0;
+				for (let j = 0; j < restVecs.length; j++) {
+					const rest = restVecs[j];
+					const dist = Math.sqrt(
+						(venome[0] - rest[0]) ** 2 + (venome[1] - rest[1]) ** 2
+					);
+					summed += dist;
+					sub.push(dist);
+				}
+				if (summed < smallest) {
+					smallest = summed;
+					smallestIdx = i;
+					smallestDists = [...sub];
+				}
+			}
+			// cursed shit orders the idxs by the dists i found
+			return lassoedIdxs
+				.map((d, i) => {
+					return { idx: d, dist: smallestDists[i] };
+				})
+				.toSorted((a, b) => a.dist - b.dist)
+				.map((d) => d.idx);
+		}
+		return [];
+	}
 </script>
 
 <div id="navbar"><b>Protein Scatter</b></div>
@@ -172,7 +216,7 @@
 					class="flex flex-row gap-2 flex-wrap"
 					style="align-content: start;"
 				>
-					{#each lassoedIdxs as idx}
+					{#each orderByDist(selectedName, lassoedIdxs) as idx}
 						{@const name = data.names[idx]}
 						{@const code = nameToCode(name)}
 						{#if !venomeInfo.names.includes(name)}
