@@ -11,8 +11,8 @@
 	import Molstar from "./lib/Molstar.svelte";
 	import { Button, Search } from "flowbite-svelte";
 
-	let colors = ["#f22952", "#FFFFFF"] as string[];
-	let selectedName: string;
+	let colors = ["#22c695", "#c4c4c4"] as string[];
+	let selectedName: string | undefined;
 	let searchTable: string = "";
 	let lassoedIdxs: number[] = [];
 
@@ -85,7 +85,7 @@
 		let result: ScatterPoints = [];
 		for (let i = 0; i < data.x.length; i++) {
 			let color = 1;
-			let opacity = 0.1;
+			let opacity = 0.2;
 			result.push([data.x[i], data.y[i], color, opacity]);
 		}
 
@@ -126,10 +126,14 @@
 					<div
 						class="venome"
 						style={selectedName == name
-							? "--color: #f22952; --bg-color: #f2295230;"
+							? " --color: #18916d; --bg-color: #18916d30; "
 							: ""}
 						on:click={() => {
-							selectedName = name;
+							if (selectedName === name) {
+								selectedName = undefined;
+							} else {
+								selectedName = name;
+							}
 							reformatData();
 						}}
 					>
@@ -149,21 +153,24 @@
 				}}
 			/>
 		</div>
-		{#if selectedName || lassoedIdxs.length > 0}
+		{#if selectedName}
+			<div
+				id="top-right-sidebar"
+				style="width: {400}px; height: {400}px; outline: grey;"
+			>
+				<Molstar
+					width={400}
+					height={400}
+					url="http://localhost:8000/file/{selectedName}"
+					format="pdb"
+				/>
+			</div>
+		{/if}
+		{#if lassoedIdxs.length > 0}
 			<div id="right-sidebar">
-				<div style="width: {400}px; height: {400}px; outline: grey;">
-					{#if selectedName}
-						<Molstar
-							width={400}
-							height={400}
-							url="http://localhost:8000/file/{selectedName}"
-							format="pdb"
-						/>
-					{/if}
-				</div>
 				<div
 					class="flex flex-row gap-2 flex-wrap"
-					style="height: 400px; overflow-y: scroll; align-content: start;"
+					style="align-content: start;"
 				>
 					{#each lassoedIdxs as idx}
 						{@const name = data.names[idx]}
@@ -183,8 +190,8 @@
 
 <style>
 	.pdb {
-		--color: #ffffff;
-		--bg-color: #ffffff30;
+		--color: rgba(20, 151, 253);
+		--bg-color: rgba(20, 151, 253, 0.1);
 		padding: 2px;
 		padding-left: 5px;
 		padding-right: 5px;
@@ -197,8 +204,6 @@
 	}
 	.pdb:hover {
 		scale: 1.05;
-		--color: #f22952;
-		--bg-color: #f2295230;
 	}
 	.venome {
 		--color: #ffffff;
@@ -215,8 +220,8 @@
 	}
 	.venome:hover {
 		scale: 1.05;
-		--color: #f22952;
-		--bg-color: #f2295230;
+		--color: #22c695;
+		--bg-color: #18916d30;
 	}
 	#navbar {
 		padding: 15px;
@@ -253,16 +258,27 @@
 		backdrop-filter: blur(10px);
 		background: #37415140;
 	}
-	#right-sidebar {
+	#top-right-sidebar {
 		width: 450px;
-		height: 940px;
-		padding: 10px;
-		border: 1px solid #374151;
+		height: 450px;
 		border-radius: 5px;
 		position: absolute;
 		right: 10px;
 		top: 10px;
 		backdrop-filter: blur(10px);
 		background: #37415140;
+	}
+	#right-sidebar {
+		width: 400px;
+		height: 500px;
+		padding: 10px;
+		border: 1px solid #374151;
+		border-radius: 5px;
+		position: absolute;
+		right: 10px;
+		bottom: 10px;
+		backdrop-filter: blur(10px);
+		background: #37415140;
+		overflow-y: scroll;
 	}
 </style>

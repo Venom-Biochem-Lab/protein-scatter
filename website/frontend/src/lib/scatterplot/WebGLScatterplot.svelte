@@ -45,9 +45,10 @@
 			colorBy: "category",
 			pointColor: colorRange,
 		});
+		const range = opacityRange(20);
 		scatterPtr.set({
-			opacityBy: "density",
-			// opacity: opacityRange(10),
+			opacityBy: "value",
+			opacity: range,
 		});
 		scatterPtr.set({
 			sizeBy: "value",
