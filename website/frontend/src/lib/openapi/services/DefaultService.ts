@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { DataResponse } from '../models/DataResponse';
-import type { SimilarResponse } from '../models/SimilarResponse';
+import type { InfoVenomeResponse } from '../models/InfoVenomeResponse';
 import type { TestResponse } from '../models/TestResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -21,14 +21,14 @@ export class DefaultService {
         });
     }
     /**
-     * Get Similar
-     * @returns SimilarResponse Successful Response
+     * Get Info Venome
+     * @returns InfoVenomeResponse Successful Response
      * @throws ApiError
      */
-    public static getSimilar(): CancelablePromise<SimilarResponse> {
+    public static getInfoVenome(): CancelablePromise<InfoVenomeResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/similar',
+            url: '/info/venome',
         });
     }
     /**

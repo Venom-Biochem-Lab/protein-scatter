@@ -2,16 +2,16 @@
 	import WebGlScatterplot from "./WebGLScatterplot.svelte";
 	import { extent } from "d3-array";
 	import { scaleLinear } from "d3-scale";
-	import type { Data } from "../types";
+	import type { ScatterPoints } from "../types";
 
 	// inputs from component props
 	// data must be [x: number, y: number, color: number between 0 and 1, opacity: number between 0 and 1][]
-	export let data: Data = [];
+	export let data: ScatterPoints = [];
 	export let colorRange: string[] = [];
 	export let width: number;
 	export let height: number;
 
-	let dataThatFitsInView: Data = [];
+	let dataThatFitsInView: ScatterPoints = [];
 
 	/**
 	 * This component does the same thing
@@ -25,7 +25,11 @@
 	 * converts the x -> [-1, 1] range
 	 * converts the y -> [-1, 1] range
 	 */
-	function fitPointsInView(data: Data, xPadding = 0.3, yPadding = 0.3): Data {
+	function fitPointsInView(
+		data: ScatterPoints,
+		xPadding = 0.3,
+		yPadding = 0.3
+	): ScatterPoints {
 		const dataExists = data && data.length > 0;
 		if (!dataExists) return [];
 
@@ -49,7 +53,7 @@
 			yMapper(d[1]),
 			d[2],
 			d[3],
-		]) as Data;
+		]) as ScatterPoints;
 		return newData;
 	}
 </script>

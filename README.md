@@ -27,3 +27,5 @@ What makes this system different? Here I explicitly model each protein as the in
 - [Andrej Karpathy](https://github.com/karpathy)
 	- https://github.com/karpathy/nanoGPT
  	- https://github.com/karpathy/ng-video-lecture
+
+- [USalign](https://github.com/pylelab/USalign)

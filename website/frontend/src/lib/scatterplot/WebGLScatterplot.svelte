@@ -1,14 +1,14 @@
 <script lang="ts">
 	import createScatterplot from "regl-scatterplot";
 	import { onMount, createEventDispatcher } from "svelte";
-	import type { Data, ReglScatter } from "../types";
+	import type { ScatterPoints, ReglScatter } from "../types";
 
 	// create function for signaling back to parent component
 	const dispatch = createEventDispatcher();
 
 	// inputs from component props
 	// data must be [x: number, y: number, color: number between 0 and 1, opacity: number between 0 and 1][]
-	export let data: Data = [];
+	export let data: ScatterPoints = [];
 	export let colorRange: string[] = [];
 	export let width: number;
 	export let height: number;
@@ -26,7 +26,7 @@
 		defineLassoSelection(scatterPtr); // defines the lasso selection signal to the parent component
 	});
 
-	function drawData(scatterPtr: ReglScatter, data: Data) {
+	function drawData(scatterPtr: ReglScatter, data: ScatterPoints) {
 		if (scatterPtr) {
 			scatterPtr.draw(data);
 		}
@@ -36,9 +36,8 @@
 			canvas: canvasEl,
 			width,
 			height,
-		});
-		scatterPtr.set({
-			pointSize: 1,
+			// backgroundColor: "#000000",
+			lassoColor: "#f66c02",
 		});
 		return scatterPtr;
 	}
@@ -47,9 +46,14 @@
 			colorBy: "category",
 			pointColor: colorRange,
 		});
+		const range = opacityRange(20);
 		scatterPtr.set({
 			opacityBy: "value",
-			opacity: opacityRange(10),
+			opacity: range,
+		});
+		scatterPtr.set({
+			sizeBy: "value",
+			pointSize: [1, 4, 8, 16],
 		});
 	}
 	function defineLassoSelection(scatterPtr: ReglScatter) {
@@ -79,9 +83,4 @@
 	}
 </script>
 
-<canvas
-	bind:this={canvasEl}
-	{width}
-	{height}
-	style="outline: 1px solid grey;"
-/>
+<canvas bind:this={canvasEl} {width} {height} />

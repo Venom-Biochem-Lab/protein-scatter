@@ -8,7 +8,7 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { DataResponse } from './models/DataResponse';
-export type { SimilarResponse } from './models/SimilarResponse';
+export type { InfoVenomeResponse } from './models/InfoVenomeResponse';
 export type { TestResponse } from './models/TestResponse';
 
 export { DefaultService } from './services/DefaultService';
