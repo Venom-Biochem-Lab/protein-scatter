@@ -22,10 +22,11 @@ What makes this system different? Here I explicitly model each protein as the in
 
 ## References
 
-- Foldseek: [van Kempen M, Kim S, Tumescheit C, Mirdita M, Lee J, Gilchrist C, Söding J, and Steinegger M. Fast and accurate protein structure search with Foldseek. Nature Biotechnology, doi:10.1038/s41587-023-01773-0 (2023)](https://www.nature.com/articles/s41587-023-01773-0)
+- Foldseek: [van Kempen M, Kim S, Tumescheit C, Mirdita M, Lee J, Gilchrist C, Söding J, and Steinegger M. Fast and accurate protein structure search with Foldseek. Nature Biotechnology, doi:10.1038/s41587-023-01773-0 (2023)](https://www.nature.com/articles/s41587-023-01773-0) to convert sequences into their 3Di representation for training.
 
-- [Andrej Karpathy](https://github.com/karpathy)
+- nanoGPT: [Andrej Karpathy](https://github.com/karpathy) for direct use and modification of causal self attention torch blocks.
 	- https://github.com/karpathy/nanoGPT
  	- https://github.com/karpathy/ng-video-lecture
 
-- [USalign](https://github.com/pylelab/USalign)
+- USalign: [Chengxin Zhang, Morgan Shine, Anna Marie Pyle, Yang Zhang](https://github.com/pylelab/USalign) for use in the website backend to visualize pdb proteins superimposed on the query proteins.
+
