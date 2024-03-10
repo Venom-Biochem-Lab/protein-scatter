@@ -1,3 +1,7 @@
+"""
+Much of this files code is from https://github.com/karpathy/nanoGPT by Andrej Karpathy
+"""
+
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -5,6 +9,7 @@ from torch.nn import functional as F
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
+# modified from https://github.com/karpathy/nanoGPT
 class CausalSelfAttention(nn.Module):
     def __init__(self, n_embd, n_head, bias, dropout):
         super().__init__()
