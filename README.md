@@ -6,6 +6,14 @@ This code uses [Foldseek](https://github.com/steineggerlab/foldseek)'s 3Di repre
 
 What makes this system different? Here I explicitly model each protein as the interactions of it's internal 3D structure. I then compare across many different proteins for a global visualization.
 
+## Models and Datasets
+
+If you want to reproduce these results check the training code in the [`training/`](./training/) directory.
+
+Note that UMAP transformation was does in python notebooks not in the python code.
+
+The weights are saved in `checkpoint-large-3.pt` in this [ Google Drive ](https://drive.google.com/drive/folders/1FerixS81_qof0QD-k-0PN3kUSt8oBWLK?usp=sharing) as well as additional training data.
+
 ## References
 
 - Foldseek: [van Kempen M, Kim S, Tumescheit C, Mirdita M, Lee J, Gilchrist C, Söding J, and Steinegger M. Fast and accurate protein structure search with Foldseek. Nature Biotechnology, doi:10.1038/s41587-023-01773-0 (2023)](https://www.nature.com/articles/s41587-023-01773-0) to convert sequences into their 3Di representation for training.
