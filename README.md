@@ -18,7 +18,9 @@ Note that UMAP transformation was does in python notebooks not in the python cod
 
 The weights are saved in `checkpoint-large-3.pt` in this [ Google Drive ](https://drive.google.com/drive/folders/1FerixS81_qof0QD-k-0PN3kUSt8oBWLK?usp=sharing) as well as additional training data.
 
-## References
+## Code References
+
+See the paper (todo link) for more references that aren't just code references.
 
 - Foldseek: [van Kempen M, Kim S, Tumescheit C, Mirdita M, Lee J, Gilchrist C, Söding J, and Steinegger M. Fast and accurate protein structure search with Foldseek. Nature Biotechnology, doi:10.1038/s41587-023-01773-0 (2023)](https://www.nature.com/articles/s41587-023-01773-0) to convert sequences into their 3Di representation for training.
 
