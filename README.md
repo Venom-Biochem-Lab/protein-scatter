@@ -1,6 +1,6 @@
 # protein-scatter
 
-A map of proteins for exploration and discovery. Specifically to explore many local parts of proteins all at once. 
+A map of proteins for exploration and discovery. Specifically to explore many local parts of proteins all at once. Accompanied by the [paper version](https://xnought.github.io/files/protein-scatter.pdf) explaining everything in depth.
 
 https://github.com/xnought/protein-scatter/assets/65095341/9cd9986c-c619-40a1-a4a5-784550670b64
 
@@ -20,7 +20,7 @@ The weights are saved in `checkpoint-large-3.pt` in this [ Google Drive ](https:
 
 ## Code References
 
-See the paper (todo link) for more references that aren't just code references.
+See the paper [protein-scatter.pdf](https://xnought.github.io/files/protein-scatter.pdf) for more references that aren't just code references.
 
 - Foldseek: [van Kempen M, Kim S, Tumescheit C, Mirdita M, Lee J, Gilchrist C, Söding J, and Steinegger M. Fast and accurate protein structure search with Foldseek. Nature Biotechnology, doi:10.1038/s41587-023-01773-0 (2023)](https://www.nature.com/articles/s41587-023-01773-0) to convert sequences into their 3Di representation for training.
 
