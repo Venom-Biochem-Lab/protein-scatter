@@ -1,10 +1,10 @@
 # protein-scatter
 
+A map of proteins for exploration and discovery. Specifically to explore many local parts of proteins all at once. 
 
 https://github.com/xnought/protein-scatter/assets/65095341/9cd9986c-c619-40a1-a4a5-784550670b64
 
 
-A map of proteins for exploration and discovery. Specifically to explore many local parts of proteins all at once. 
 
 This code uses [Foldseek](https://github.com/steineggerlab/foldseek)'s 3Di representation instead of amino acids to train a sequence model. The embeddings from the sequence model are then fed into UMAP for a global visualization.
 
